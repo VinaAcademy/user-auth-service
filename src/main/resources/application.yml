@@ -6,7 +6,7 @@ grpc:
 
 spring:
   application:
-    name: auth-service
+    name: user-service
 
   autoconfigure:
     exclude: org.springframework.grpc.autoconfigure.server.GrpcServerFactoryAutoConfiguration

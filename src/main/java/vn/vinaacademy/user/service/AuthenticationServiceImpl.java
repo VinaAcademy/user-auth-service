@@ -1,6 +1,10 @@
 package vn.vinaacademy.user.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import vn.vinaacademy.common.config.UrlBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +19,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.vinaacademy.kafka.KafkaTopic;
+import vn.vinaacademy.kafka.event.GenericEmailEvent;
 import vn.vinaacademy.user.dto.mapper.UserMapper;
+import vn.vinaacademy.user.event.EmailProducer;
 import vn.vinaacademy.user.repository.UserRepository;
 import vn.vinaacademy.user.dto.*;
 import vn.vinaacademy.user.entity.ActionToken;
@@ -33,6 +40,7 @@ import vn.vinaacademy.common.exception.RetryableException;
 import vn.vinaacademy.common.utils.RandomUtils;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Set;
 
 @Slf4j
@@ -42,7 +50,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
     private final JwtService jwtService;
-    //    private final EmailService emailService;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -53,6 +60,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final HttpServletRequest httpServletRequest;
     private final RoleRepository roleRepository;
     private final SecurityHelper securityHelper;
+
+    @Autowired
+    private EmailProducer emailProducer;
 
 
     /**
@@ -76,7 +86,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         user.setEnabled(false);
         user.setRoles(Set.of(roleRepository.findByCode(AuthConstants.STUDENT_ROLE)));
-//        user.setRoles(List.of(roleRepository.findByCode(AuthConstants.STUDENT_ROLE)));
         user = userRepository.save(user);
 
         String token = RandomUtils.generateUUID();
@@ -90,7 +99,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         actionTokenRepository.save(actionToken);
 
         log.info("Đăng ký thành công cho người dùng: {}", user.getEmail());
-//        emailService.sendVerificationEmail(user.getEmail(), actionToken.getToken());
+
+        // Send verification email to Kafka topic
+        emailProducer.sendVerificationEmail(user.getEmail(), actionToken.getToken());
+
     }
 
     @Retryable(retryFor = {RetryableException.class}, maxAttempts = 3)
@@ -172,6 +184,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             token.setExpiredAt(now.plusHours(AuthConstants.ACTION_TOKEN_EXPIRED_HOURS));
             actionTokenRepository.save(token);
 //            emailService.sendVerificationEmail(email, token.getToken());
+            // Send verification email to Kafka topic
+            emailProducer.sendVerificationEmail(email, token.getToken());
         }
     }
 
@@ -212,6 +226,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         log.info("Gửi lại email xác thực cho người dùng: {}", user.getEmail());
 
 //        emailService.sendVerificationEmail(user.getEmail(), actionToken.getToken());
+        // Send verification email to Kafka topic
+        emailProducer.sendVerificationEmail(user.getEmail(), actionToken.getToken());
     }
 
     /**
@@ -277,6 +293,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         actionTokenRepository.delete(actionToken);
 
 //        emailService.sendWelcomeEmail(user);
+        // Send welcome email to Kafka topic
+        emailProducer.sendWelcomeEmail(user.getEmail(), user.getFullName());
 
         log.info("Xác thực tài khoản thành công cho người dùng: {}", user.getEmail());
     }
@@ -304,6 +322,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         actionTokenRepository.save(actionToken);
 
 //        emailService.sendPasswordResetEmail(user, actionToken.getToken());
+        // Send password reset email to Kafka topic
+        emailProducer.sendPasswordResetEmail(user.getEmail(), actionToken.getToken());
 
         log.info("Yêu cầu đặt lại mật khẩu thành công cho người dùng: {}", user.getEmail());
     }

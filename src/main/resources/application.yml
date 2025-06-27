@@ -12,7 +12,7 @@ spring:
     exclude: org.springframework.grpc.autoconfigure.server.GrpcServerFactoryAutoConfiguration
   
   datasource:
-    url: jdbc:postgresql://localhost:5432/vinaacademy_auth
+    url: jdbc:postgresql://localhost:5432/vinaacademy_user
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver

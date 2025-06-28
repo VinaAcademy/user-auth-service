@@ -55,7 +55,7 @@ public class User extends BaseEntity implements UserDetails {
     private String description;
 
     @Column(name = "is_collaborator")
-    private boolean isCollaborator;
+    private Boolean isCollaborator = false;
 
     @Column(name = "birthday")
     private LocalDate birthday;
@@ -70,17 +70,17 @@ public class User extends BaseEntity implements UserDetails {
     private Set<Role> roles;
 
     @Column(name = "is_enabled")
-    private boolean enabled;
+    private Boolean enabled = true;
 
     @Column(name = "is_Using_2FA")
-    private boolean isUsing2FA = false;
+    private Boolean isUsing2FA = false;
 
     @Column(name = "failed_attempts")
     @ColumnDefault("0")
-    private int failedAttempts;
+    private Integer failedAttempts = 0;
 
     @Column(name = "is_locked")
-    private boolean isLocked = false;
+    private Boolean isLocked = false;
     @Column(name = "lock_time")
     private LocalDateTime lockTime;
 

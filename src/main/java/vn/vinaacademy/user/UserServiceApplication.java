@@ -7,7 +7,10 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
+import org.springframework.kafka.core.KafkaTemplate;
 import vn.vinaacademy.kafka.KafkaProducerConfig;
+import vn.vinaacademy.kafka.KafkaTopic;
+import vn.vinaacademy.kafka.event.NotificationCreateEvent;
 import vn.vinaacademy.user.event.EmailProducer;
 
 import java.util.Map;

@@ -38,7 +38,7 @@ public class UserController {
     }    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Xem thông tin user từ id")
     @GetMapping("/view/{userId}")
-    public ApiResponse<UserViewDto> viewUserInfo(@PathVariable UUID userId) {
+    public ApiResponse<UserViewDto> viewUserInfo(@PathVariable("userId") UUID userId) {
         UserViewDto viewUser = userService.viewUser(userId);
         log.debug("get view info for user "+viewUser.getId());
         return ApiResponse.success(viewUser);

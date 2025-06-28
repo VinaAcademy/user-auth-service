@@ -8,6 +8,9 @@ spring:
   application:
     name: user-service
 
+  profiles:
+    active: dev
+
   autoconfigure:
     exclude: org.springframework.grpc.autoconfigure.server.GrpcServerFactoryAutoConfiguration
   
@@ -19,12 +22,18 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    out-of-order: false
 
   kafka:
     bootstrap-servers: localhost:9092

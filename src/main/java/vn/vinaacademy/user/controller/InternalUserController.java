@@ -19,7 +19,7 @@ public class InternalUserController {
     
     @Operation(summary = "Lấy thông tin user từ id - Internal use only")
     @GetMapping("/{userId}")
-    public ApiResponse<UserDto> getUserById(@PathVariable UUID userId) {
+    public ApiResponse<UserDto> getUserById(@PathVariable("userId") UUID userId) {
         UserDto user = userService.getUserById(userId);
         log.debug("Internal call: get user info for user "+user.getId());
         return ApiResponse.success(user);

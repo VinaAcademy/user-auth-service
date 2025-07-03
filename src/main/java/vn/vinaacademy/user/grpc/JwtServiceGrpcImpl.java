@@ -1,6 +1,7 @@
 package vn.vinaacademy.user.grpc;
 
 
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,7 @@ public class JwtServiceGrpcImpl extends JwtServiceGrpc.JwtServiceImplBase {
         } catch (Exception e) {
             log.error("Error validating token: {}", e.getMessage());
             responseObserver.onError(
-                    io.grpc.Status.INTERNAL.withDescription(e.getMessage()).withCause(e).asRuntimeException()
+                    Status.UNAUTHENTICATED.withDescription("Đã có lỗi khi kiểm tra token").withCause(e).asRuntimeException()
             );
         }
     }

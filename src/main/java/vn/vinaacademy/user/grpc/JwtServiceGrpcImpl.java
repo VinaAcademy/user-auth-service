@@ -34,7 +34,7 @@ public class JwtServiceGrpcImpl extends JwtServiceGrpc.JwtServiceImplBase {
         } catch (Exception e) {
             log.error("Error validating token: {}", e.getMessage());
             responseObserver.onError(
-                    io.grpc.Status.INTERNAL.withDescription("Internal server error").withCause(e).asRuntimeException()
+                    io.grpc.Status.INTERNAL.withDescription(e.getMessage()).withCause(e).asRuntimeException()
             );
         }
     }

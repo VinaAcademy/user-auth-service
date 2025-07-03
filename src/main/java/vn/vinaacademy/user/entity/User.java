@@ -80,6 +80,7 @@ public class User extends BaseEntity implements UserDetails {
     private Integer failedAttempts = 0;
 
     @Column(name = "is_locked")
+    @ColumnDefault("false")
     private Boolean isLocked = false;
     @Column(name = "lock_time")
     private LocalDateTime lockTime;
@@ -115,7 +116,10 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return !isLocked;
+        if (isLocked != null && isLocked) {
+            return false;
+        }
+        return UserDetails.super.isAccountNonLocked();
     }
 
     @Override
